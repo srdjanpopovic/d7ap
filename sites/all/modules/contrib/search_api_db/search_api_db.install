@@ -74,7 +74,8 @@ function search_api_db_update_7102() {
       $prev_db = db_set_active($key);
       foreach ($options['indexes'] as $fields) {
         foreach ($fields as $field) {
-          db_query("ALTER TABLE {{$field['table']}} CONVERT TO CHARACTER SET 'utf8' COLLATE 'utf8_bin'", array(), array('target' => $target));
+          // PATCH CD
+          db_query("ALTER TABLE {{$field['table']}} CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin'", array(), array('target' => $target));
         }
       }
       db_set_active($prev_db);

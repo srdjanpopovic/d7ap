@@ -414,7 +414,8 @@ class SearchApiDbService extends SearchApiAbstractService {
       // Some DBMSs will need a character encoding and collation set.
       switch ($this->connection->databaseType()) {
         case 'mysql':
-          $this->connection->query("ALTER TABLE {{$db['table']}} CONVERT TO CHARACTER SET 'utf8' COLLATE 'utf8_bin'");
+          // PATCH CD
+          $this->connection->query("ALTER TABLE {{$db['table']}} CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin'");
           break;
 
           // @todo Add fixes for other DBMSs.
@@ -701,7 +702,8 @@ class SearchApiDbService extends SearchApiAbstractService {
         try {
           switch ($this->connection->databaseType()) {
             case 'mysql':
-              $this->connection->query("ALTER TABLE {{$text_table}} CONVERT TO CHARACTER SET 'utf8' COLLATE 'utf8_bin'");
+              // PATCH CD
+              $this->connection->query("ALTER TABLE {{$text_table}} CONVERT TO CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin'");
               break;
 
             case 'pgsql':
@@ -1303,7 +1305,12 @@ class SearchApiDbService extends SearchApiAbstractService {
     }
 
     if (!isset($db_query)) {
-      $db_query = $this->connection->select($fields['search_api_language']['table'], 't');
+      // PATCH CD
+      if (!isset($fields['search_api_language']['table'])) {
+        $fields['search_api_language']['table'] = 'search_api_db_file_index';
+      }
+      // END PATCH CD
+      $db_query = $this->connection->select($fields['search_api_language']['table'], 't');      
       $db_query->addField('t', 'item_id', 'item_id');
       $db_query->addExpression(':score', 'score', array(':score' => self::SCORE_MULTIPLIER));
       $db_query->distinct();

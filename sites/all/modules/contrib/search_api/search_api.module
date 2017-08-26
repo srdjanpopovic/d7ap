@@ -2331,6 +2331,7 @@ function search_api_extract_fields(EntityMetadataWrapper $wrapper, array $fields
       // Set "defaults" in case an error occurs later.
       $info['value'] = NULL;
       $info['original_type'] = $info['type'];
+      
       if (isset($wrapper->$field)) {
         try {
           // Set the original type according to the field wrapper's info.
@@ -2365,6 +2366,30 @@ function search_api_extract_fields(EntityMetadataWrapper $wrapper, array $fields
           // for comments without parent.
         }
       }
+      // PATCH CD
+      else {
+        if ($field == 'attachments_field_file') {
+          $file = $wrapper->field_file->value();
+          if (isset($file['fid']) && $file['fid']) {
+            $cid = 'cached_extraction_:' . $file['fid'];
+            $cached_extraction = cache_get($cid, 'cache_search_api_attachments');
+            if (property_exists($cached_extraction, 'data')) {
+              $info['value'] = $cached_extraction->data;
+            }
+          }
+        }
+        elseif ($field == 'attachments_content') { 
+          $fid = $wrapper->fid->value();
+          if ($fid) {
+            $cid = 'cached_extraction_:' . $fid;
+            $cached_extraction = cache_get($cid, 'cache_search_api_attachments');
+            if (property_exists($cached_extraction, 'data')) {
+              $info['value'] = $cached_extraction->data;
+            }
+          }
+        }
+      }
+      // END PATCH CD
     }
     else {
       list($prefix, $key) = explode(':', $field, 2);
